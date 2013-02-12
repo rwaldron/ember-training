@@ -19,6 +19,19 @@ App.AlbumRoute = Ember.Route.extend({
   }
 });
 
+App.AlbumController = Ember.ObjectController.extend({
+  totalDuration: function() {
+    var songs = this.get('songs'),
+        total = 0;
+
+    songs.forEach(function(song) {
+      total += song.duration;
+    });
+
+    return total;
+  }.property('songs.@each.duration')
+});
+
 Ember.Handlebars.helper('format-duration', function(seconds) {
   var formattedMinutes = Math.floor(seconds / 60);
   var formattedSeconds = seconds % 60;
