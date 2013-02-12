@@ -48,7 +48,26 @@ Ember.Handlebars.helper('format-duration', function(seconds) {
 
 App.AudioView = Ember.View.extend({
   templateName: 'audioControl',
-  classNames: ['audio-control']
+  classNames: ['audio-control'],
+
+  currentTime: 0,
+
+  didInsertElement: function() {
+    var view = this;
+
+    this.$('audio').on('loadeddata', function() {
+      view.set('duration', Math.floor(this.duration));
+      view.set('isLoaded', true);
+    });
+
+    this.$('audio').on('timeupdate', function() {
+      view.set('currentTime', Math.floor(this.currentTime));
+    });
+
+    this.$('audio').on('play', function() {
+      view.set('isPlaying', true);
+    });
+  }
 });
 
 })();
