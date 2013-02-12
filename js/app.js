@@ -46,4 +46,9 @@ Ember.Handlebars.helper('format-duration', function(seconds) {
   return formattedMinutes + ":" + formattedSeconds;
 });
 
+App.AudioView = Ember.View.extend({
+  templateName: 'audioControl',
+  classNames: ['audio-control']
+});
+
 })();
