@@ -39,6 +39,14 @@ App.AlbumController = Ember.ObjectController.extend({
 
 App.NowPlayingController = Ember.ObjectController.extend();
 
+App.SongController = Ember.ObjectController.extend({
+  needs: 'nowPlaying',
+
+  isPlaying: function() {
+    return this.get('controllers.nowPlaying.model') === this.get('model');
+  }.property('controllers.nowPlaying.model')
+});
+
 Ember.Handlebars.helper('format-duration', function(seconds) {
   var formattedMinutes = Math.floor(seconds / 60);
   var formattedSeconds = seconds % 60;
