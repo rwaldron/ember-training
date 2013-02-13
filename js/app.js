@@ -7,6 +7,18 @@ App.Router.map(function() {
   this.resource('album', { path: '/album/:album_id' });
 });
 
+App.ApplicationRoute = Ember.Route.extend({
+  events: {
+    addToQueue: function(song) {
+      this.controllerFor('nowPlaying').addToQueue(song);
+    },
+
+    play: function(song) {
+      this.controllerFor('nowPlaying').set('model', song);
+    }
+  }
+});
+
 App.IndexRoute = Ember.Route.extend({
   model: function() {
     return App.ALBUM_FIXTURES;
@@ -37,7 +49,19 @@ App.AlbumController = Ember.ObjectController.extend({
   }
 });
 
-App.NowPlayingController = Ember.ObjectController.extend();
+App.NowPlayingController = Ember.ObjectController.extend({
+  nextSongs: null,
+  showingQueue: false,
+
+  addToQueue: function(song) {
+    if (!this.get('nextSongs')) { this.set('nextSongs', []); }
+    this.get('nextSongs').pushObject(song);
+  },
+
+  showQueue: function() {
+    this.toggleProperty('showingQueue');
+  }
+});
 
 App.SongController = Ember.ObjectController.extend({
   needs: 'nowPlaying',
