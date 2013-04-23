@@ -1,6 +1,6 @@
 /*
   For Step 7, you will create a new helper called `format-duration` that
-  takes a number of seconds and turns it into a MM:SS formatted string.
+  takes a number of seconds and turns it into a M:SS formatted string.
 
   For example, 75 seconds would become "1:15".
 
@@ -40,7 +40,7 @@ test("The helper correctly formats number of seconds into human-readable strings
   equal(invokeHelper('format-duration', 125), '2:05', "The helper works with multiple minutes");
 });
 
-test("Each album formats the duration in seconds as MM:SS", function() {
+test("Each album formats the duration in seconds as M:SS", function() {
   click('.album:first a');
 
   [ '5:16', '5:44', '5:34', '8:19' ].forEach(function(duration) {
