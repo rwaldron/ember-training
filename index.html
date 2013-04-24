@@ -34,7 +34,7 @@
             <p class="album-name">{{name}}</p>
             <p class="album-artist">{{artist}}</p>
             <p class="song-count">
-              8 songs
+              {{songs.length}} songs
               {{#if isExplicit}}
                 <span class="explicit">EXPLICIT</span>
               {{/if}}
@@ -77,7 +77,7 @@
               <span class="now-playing-artist">{{album.artist}}</span>
             </p>
             <div class="now-playing-player">
-            {{audio-player}}
+            {{audio-player srcBinding="url" durationBinding="duration"}}
             </div>
           </div>
         {{else}}
@@ -97,6 +97,14 @@
       {{else}}
         <button class="play" {{action "play" target="view"}}>▶</button>
       {{/if}}
+
+      <button class="now-playing-duration" {{action "toggle" target="view"}}>
+      {{#if view.isShowRemaining}}
+        {{format-duration view.remaining}}
+      {{else}}
+        {{format-duration duration}}
+      {{/if}}
+      </button>
     </script>
 
 

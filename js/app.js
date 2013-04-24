@@ -57,11 +57,10 @@ App.AudioView = Ember.View.extend({
   classNames: [ "audio-control" ],
 
   // View Specific State
-  duration: 0,
   currentTime: 0,
   isPlaying: false,
   isLoaded: false,
-  player: null,
+  isShowRemaining: false,
 
   // View Rendering (Ember Hooks)
   willDestroyElement: function() {
@@ -79,14 +78,11 @@ App.AudioView = Ember.View.extend({
     Popcorn("audio").on("canplayall", function() {
       // Event handlers returned by calls to "schedule()"
       // are pre-rolled with Ember.run(callback)
-
-      view.set( "player", this );
-      view.set( "duration", Math.floor(this.duration()) );
       view.set( "isLoaded", true );
 
       // isPlaying = true
       [
-        "play", "playing"
+        "play" // , "playing"
       ].forEach(function( type ) {
         this.on( type, schedule(function() {
           view.set( "isPlaying", true );
@@ -95,7 +91,7 @@ App.AudioView = Ember.View.extend({
 
       // isPlaying = false
       [
-        "pause", "ended", "waiting", "suspend", "stalled"
+        "pause" //, "ended", "waiting", "suspend", "stalled"
       ].forEach(function( type ) {
         this.on( type, schedule(function() {
           view.set( "isPlaying", false );
@@ -104,22 +100,35 @@ App.AudioView = Ember.View.extend({
 
       // currentTime = timeupdate(currentTime)
       this.on( "timeupdate", schedule(function() {
-        view.set( "currentTime", this.roundTime() );
-      }.bind(this)));
+        var remaining = view.get("duration") - this.roundTime();
 
+        view.set( "currentTime", this.roundTime() );
+
+        if ( view.get("isShowRemaining") ) {
+          view.set(
+            "remaining", remaining === NaN ?
+              view.get("duration") : remaining
+          );
+        }
+      }.bind(this)));
     });
   },
 
   // View Action Handlers
   play: function() {
     // isPlaying = true
-    this.get("player").play();
     this.set("isPlaying", true);
+    Popcorn.instances[0].play();
   },
   pause: function() {
     // isPlaying = false
-    this.get("player").pause();
     this.set("isPlaying", false);
+    Popcorn.instances[0].pause();
+  },
+  toggle: function() {
+    var isShowRemaining = this.get("isShowRemaining");
+
+    this.set("isShowRemaining", !isShowRemaining);
   }
 });
 
@@ -131,7 +140,7 @@ Ember.Handlebars.helper( "audio-player", App.AudioView );
 
 Ember.Handlebars.helper( "format-duration", function( value ) {
   var m = Math.floor( value / 60 );
-  return [
+  return Number.isNaN(m) ? "" : [
     lpad( m, (m + "").length, "0" ),
     lpad( value % 60, 2, "0" )
   ].join(":");

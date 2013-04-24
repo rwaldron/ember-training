@@ -221,6 +221,14 @@ div.audio-control p.duration {
   margin-left: 10px;
 }
 
+button.now-playing-duration {
+  font-size: 20px !important;
+  width: 200px !important;
+  text-align: left;
+  color: #999;
+  margin-left: 10px;
+}
+
 div.audio-control input[type=range] {
   -webkit-flex-grow: 1;
   position: relative;

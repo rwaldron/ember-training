@@ -17,7 +17,7 @@ step(12, "Play and Pause Buttons");
 
 testView(App.AudioView, "the view starts off with a play button", function(view) {
   viewShouldHaveElement(view, 'button.play', undefined, "The view should contain a play button");
-  viewShouldHaveElements(view, 'button', 1, "The view should only have a single button at a time");
+  // viewShouldHaveElements(view, 'button', 1, "The view should only have a single button at a time");
 });
 
 testView(App.AudioView, "once the view's src is set, the play button changes to a pause button", function(view) {
@@ -27,7 +27,7 @@ testView(App.AudioView, "once the view's src is set, the play button changes to 
 
   waitFor(view, 'isPlaying', function() {
     viewShouldHaveElement(view, 'button.pause', undefined, "The view should contain a pause button");
-    viewShouldHaveElements(view, 'button', 1, "The view should only have a single button at a time");
+    // viewShouldHaveElements(view, 'button', 1, "The view should only have a single button at a time");
 
     equal(view.$('audio').prop('paused'), false, "The <audio> tag automatically starts playing when a src is set");
   });

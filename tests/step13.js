@@ -28,3 +28,30 @@
 */
 
 step(13, "Click to Toggle Remaining Time");
+
+testView(App.AudioView, "the view displays the duration", function(view) {
+  Ember.run(function() {
+    view.set( "src", "audio/Southern_Nights_-_07_-_All_My_Sorrows.mp3" );
+  });
+
+  waitFor( view, "isPlaying", function() {
+    viewShouldHaveElement(
+      view, "button.now-playing-duration", 1,
+      "The view should contain a time display for the duration"
+    );
+  });
+});
+
+testView(App.AudioView, "clicking duration toggles displayed value", function(view) {
+  Ember.run(function() {
+    view.set( "src", "audio/Southern_Nights_-_07_-_All_My_Sorrows.mp3" );
+  });
+
+  waitFor( view, "isPlaying", function() {
+    click( "button.now-playing-duration", view );
+    equal( view.get("isShowRemaining"), true, "isShowRemaining is true" );
+
+    click( "button.now-playing-duration", view );
+    equal( view.get("isShowRemaining"), false, "isShowRemaining is false" );
+  });
+});
