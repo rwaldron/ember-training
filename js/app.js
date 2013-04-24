@@ -3,8 +3,21 @@
 
 window.App = Ember.Application.create();
 
+/**
+ * Routes
+ */
 App.Router.map(function() {
-  this.resource('album', { path: '/album/:album_id' });
+  this.resource( "album", {
+    path: "/album/:album_id"
+  });
+});
+
+App.ApplicationRoute = Ember.Route.extend({
+  events: {
+    play: function( song ) {
+      this.controllerFor("nowPlaying").set( "model", song );
+    }
+  }
 });
 
 App.IndexRoute = Ember.Route.extend({
@@ -14,60 +27,111 @@ App.IndexRoute = Ember.Route.extend({
 });
 
 App.AlbumRoute = Ember.Route.extend({
-  model: function(params) {
-    return App.ALBUM_FIXTURES.findProperty('id', params.album_id);
+  model: function( params ) {
+    return App.ALBUM_FIXTURES.findProperty(
+      "id", params.album_id
+    );
   }
 });
 
+/**
+ * Controllers
+ */
+
 App.AlbumController = Ember.ObjectController.extend({
-  needs: ['nowPlaying'],
   totalDuration: function() {
-    var songs = this.get('songs'),
-        total = 0;
-
-    songs.forEach(function(song) {
-      total += song.duration;
-    });
-
-    return total;
-  }.property('songs.@each.duration'),
-
-  play: function(song) {
-    this.set('controllers.nowPlaying.model', song);
-  }
+    return this.get("songs").reduce(function( total, song ) {
+      return (total += song.duration) && total;
+    }, 0);
+  }.property("songs.@each.duration")
 });
 
 App.NowPlayingController = Ember.ObjectController.extend();
 
-Ember.Handlebars.helper('format-duration', function(seconds) {
-  var formattedMinutes = Math.floor(seconds / 60);
-  var formattedSeconds = seconds % 60;
-  formattedSeconds = formattedSeconds < 10 ? "0" + formattedSeconds : formattedSeconds;
-  return formattedMinutes + ":" + formattedSeconds;
-});
+/**
+ * Views
+ */
 
 App.AudioView = Ember.View.extend({
-  templateName: 'audioControl',
-  classNames: ['audio-control'],
+  templateName: "audioControl",
+  classNames: [ "audio-control" ],
 
+  // View Specific State
+  duration: 0,
   currentTime: 0,
+  isPlaying: false,
+  isLoaded: false,
 
+  // View Rendering
+  willDestroyElement: function() {
+    Popcorn.instances.forEach(function( instance ) {
+      instance.destroy();
+      instance = null;
+    });
+  },
   didInsertElement: function() {
     var view = this;
 
-    this.$('audio').on('loadeddata', function() {
-      view.set('duration', Math.floor(this.duration));
-      view.set('isLoaded', true);
-    });
+    Popcorn("audio").on("canplayall", function() {
+      // console.log( "canplayall", this );
 
-    this.$('audio').on('timeupdate', function() {
-      view.set('currentTime', Math.floor(this.currentTime));
-    });
+      view.set( "duration", Math.floor(this.duration()) );
+      view.set( "isLoaded", true );
 
-    this.$('audio').on('play', function() {
-      view.set('isPlaying', true);
+      // isPlaying = true
+      [
+        "play", "playing"
+      ].forEach(function( type ) {
+        this.on( type, function() {
+          view.set( "isPlaying", true );
+        });
+      }, this);
+
+      // isPlaying = false
+      [
+        "pause", "ended", "waiting", "suspend", "stalled"
+      ].forEach(function( type ) {
+        this.on( type, function() {
+          view.set( "isPlaying", false );
+        });
+      }, this);
+
+      // currentTime = timeupdate(currentTime)
+      this.on( "timeupdate", function() {
+        view.set( "currentTime", this.roundTime() );
+      });
+
+      // if ( this.autoplay() ) {
+        // this.play();
+      // }
+
     });
   }
 });
 
+/**
+ * Helpers
+ */
+
+Ember.Handlebars.helper( "audio-player", App.AudioView );
+
+Ember.Handlebars.helper( "format-duration", function( value ) {
+  var m = Math.floor( value / 60 );
+  return [
+    lpad( m, (m + "").length, "0" ),
+    lpad( value % 60, 2, "0" )
+  ].join(":");
+});
+
+/**
+ * Misc
+ */
+
+function lpad( str, n, char ) {
+  return String(
+    Array.apply( null, { length: n }).map(function() {
+      return char;
+    }) + str
+  ).slice( -n );
+}
 })();
