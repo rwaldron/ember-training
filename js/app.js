@@ -61,8 +61,9 @@ App.AudioView = Ember.View.extend({
   currentTime: 0,
   isPlaying: false,
   isLoaded: false,
+  player: null,
 
-  // View Rendering
+  // View Rendering (Ember Hooks)
   willDestroyElement: function() {
     Popcorn.instances.forEach(function( instance ) {
       instance.destroy();
@@ -75,6 +76,7 @@ App.AudioView = Ember.View.extend({
     Popcorn("audio").on("canplayall", function() {
       // console.log( "canplayall", this );
 
+      // view.set( "player", this );
       view.set( "duration", Math.floor(this.duration()) );
       view.set( "isLoaded", true );
 
@@ -106,6 +108,18 @@ App.AudioView = Ember.View.extend({
       // }
 
     });
+  },
+
+  // View Action Handlers
+  play: function() {
+    // isPlaying = true
+    // this.get("player").play();
+    this.set("isPlaying", true);
+  },
+  pause: function() {
+    // isPlaying = false
+    // this.get("player").pause();
+    this.set("isPlaying", false);
   }
 });
 
