@@ -65,6 +65,9 @@ App.AudioView = Ember.View.extend({
 
   // View Rendering (Ember Hooks)
   willDestroyElement: function() {
+    /**
+     * http://emberjs.com/api/classes/Ember.View.html#event_willDestroyElement
+     */
     Popcorn.instances.forEach(function( instance ) {
       instance.destroy();
       instance = null;
@@ -74,9 +77,10 @@ App.AudioView = Ember.View.extend({
     var view = this;
 
     Popcorn("audio").on("canplayall", function() {
-      // console.log( "canplayall", this );
+      // Event handlers returned by calls to "schedule()"
+      // are pre-rolled with Ember.run(callback)
 
-      // view.set( "player", this );
+      view.set( "player", this );
       view.set( "duration", Math.floor(this.duration()) );
       view.set( "isLoaded", true );
 
@@ -84,28 +88,24 @@ App.AudioView = Ember.View.extend({
       [
         "play", "playing"
       ].forEach(function( type ) {
-        this.on( type, function() {
+        this.on( type, schedule(function() {
           view.set( "isPlaying", true );
-        });
+        }));
       }, this);
 
       // isPlaying = false
       [
         "pause", "ended", "waiting", "suspend", "stalled"
       ].forEach(function( type ) {
-        this.on( type, function() {
+        this.on( type, schedule(function() {
           view.set( "isPlaying", false );
-        });
+        }));
       }, this);
 
       // currentTime = timeupdate(currentTime)
-      this.on( "timeupdate", function() {
+      this.on( "timeupdate", schedule(function() {
         view.set( "currentTime", this.roundTime() );
-      });
-
-      // if ( this.autoplay() ) {
-        // this.play();
-      // }
+      }.bind(this)));
 
     });
   },
@@ -113,12 +113,12 @@ App.AudioView = Ember.View.extend({
   // View Action Handlers
   play: function() {
     // isPlaying = true
-    // this.get("player").play();
+    this.get("player").play();
     this.set("isPlaying", true);
   },
   pause: function() {
     // isPlaying = false
-    // this.get("player").pause();
+    this.get("player").pause();
     this.set("isPlaying", false);
   }
 });
@@ -147,5 +147,11 @@ function lpad( str, n, char ) {
       return char;
     }) + str
   ).slice( -n );
+}
+
+function schedule( callback ) {
+  return function() {
+    Ember.run( callback );
+  };
 }
 })();

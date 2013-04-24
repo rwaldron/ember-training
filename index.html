@@ -90,7 +90,7 @@
 
     <script type="text/x-handlebars" data-template-name="audioControl">
       <!-- autoplay controls muted=false  -->
-      <audio autoplay {{bindAttr src="view.src"}}></audio>
+      <audio {{bindAttr src="view.src"}} autoplay></audio>
 
       {{#if view.isPlaying}}
         <button class="pause" {{action "pause" target="view"}}>❙❙</button>
