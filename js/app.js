@@ -55,14 +55,56 @@ App.NowPlayingController = Ember.ObjectController.extend();
 App.AudioView = Ember.View.extend({
   templateName: "audioControl",
   classNames: [ "audio-control" ],
+
+  // View Specific State
+  duration: 0,
+  currentTime: 0,
+  isPlaying: false,
+  isLoaded: false,
+
+  // View Rendering
+  willDestroyElement: function() {
+    Popcorn.instances.forEach(function( instance ) {
+      instance.destroy();
+      instance = null;
+    });
+  },
   didInsertElement: function() {
-    console.log( "didInsertElement!", this );
+    var view = this;
 
     Popcorn("audio").on("canplayall", function() {
+      // console.log( "canplayall", this );
 
-      console.log( "canplayall!", audio );
+      view.set( "duration", Math.floor(this.duration()) );
+      view.set( "isLoaded", true );
 
-      this.play();
+      // isPlaying = true
+      [
+        "play", "playing"
+      ].forEach(function( type ) {
+        this.on( type, function() {
+          view.set( "isPlaying", true );
+        });
+      }, this);
+
+      // isPlaying = false
+      [
+        "pause", "ended", "waiting", "suspend", "stalled"
+      ].forEach(function( type ) {
+        this.on( type, function() {
+          view.set( "isPlaying", false );
+        });
+      }, this);
+
+      // currentTime = timeupdate(currentTime)
+      this.on( "timeupdate", function() {
+        view.set( "currentTime", this.roundTime() );
+      });
+
+      // if ( this.autoplay() ) {
+        // this.play();
+      // }
+
     });
   }
 });
@@ -71,6 +113,8 @@ App.AudioView = Ember.View.extend({
  * Helpers
  */
 
+Ember.Handlebars.helper( "audio-player", App.AudioView );
+
 Ember.Handlebars.helper( "format-duration", function( value ) {
   var m = Math.floor( value / 60 );
   return [
@@ -78,8 +122,6 @@ Ember.Handlebars.helper( "format-duration", function( value ) {
     lpad( value % 60, 2, "0" )
   ].join(":");
 });
-
-Ember.Handlebars.helper( "audio-player", App.AudioView );
 
 /**
  * Misc
