@@ -38,6 +38,8 @@ App.AlbumRoute = Ember.Route.extend({
  * Controllers
  */
 
+App.NowPlayingController = Ember.ObjectController.extend();
+
 App.SongController = Ember.ObjectController.extend({
   needs: [ "nowPlaying" ],
   isPlaying: function() {
@@ -52,8 +54,6 @@ App.AlbumController = Ember.ObjectController.extend({
     }, 0);
   }.property("songs.@each.duration")
 });
-
-App.NowPlayingController = Ember.ObjectController.extend();
 
 /**
  * Views
