@@ -124,18 +124,18 @@ App.AudioView = Ember.View.extend({
   // View Action Handlers
   play: function() {
     // isPlaying = true
-    this.set("isPlaying", true);
+    this.set( "isPlaying", true );
     Popcorn.instances[0].play();
   },
   pause: function() {
     // isPlaying = false
-    this.set("isPlaying", false);
+    this.set( "isPlaying", false );
     Popcorn.instances[0].pause();
   },
   toggle: function() {
     var isShowRemaining = this.get("isShowRemaining");
 
-    this.set("isShowRemaining", !isShowRemaining);
+    this.set( "isShowRemaining", !isShowRemaining );
   }
 });
 
